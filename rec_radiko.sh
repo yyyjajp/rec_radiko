@@ -1,6 +1,12 @@
 #!/bin/sh
 
-playerurl=http://radiko.jp/player/swf/player_2.0.1.00.swf
+baseurl=radiko.jp
+if [ $# -ge 1 -a x-f = x"$1" ]; then
+  baseurl=fukkou.radiko.jp
+  shift
+fi
+
+playerurl=http://${baseurl}/player/swf/player_2.0.1.00.swf
 playerfile=./player.swf
 keyfile=./authkey.png
 
@@ -11,7 +17,7 @@ elif [ $# -eq 2 ]; then
   channel=$1
   output=$2
 else
-  echo "usage : $0 channel_name [outputfile]"
+  echo "usage : $0 [-f] channel_name [outputfile]"
   exit 1
 fi
 
@@ -55,7 +61,7 @@ wget -q \
      --post-data='\r\n' \
      --no-check-certificate \
      --save-headers \
-     https://radiko.jp/v2/api/auth1_fms
+     https://${baseurl}/v2/api/auth1_fms
 
 if [ $? -ne 0 ]; then
   echo "failed auth1 process"
@@ -92,7 +98,7 @@ wget -q \
      --header="X-Radiko-Partialkey: ${partialkey}" \
      --post-data='\r\n' \
      --no-check-certificate \
-     https://radiko.jp/v2/api/auth2_fms
+     https://${baseurl}/v2/api/auth2_fms
 
 if [ $? -ne 0 -o ! -f auth2_fms ]; then
   echo "failed auth2 process"
@@ -100,6 +106,11 @@ if [ $? -ne 0 -o ! -f auth2_fms ]; then
 fi
 
 echo "authentication success"
+
+if [ $baseurl = fukkou.radiko.jp ]; then
+  authtoken=`perl -ne 'print $1 if(/x-radiko-authtoken=([\w-]+)/i)' auth2_fms`
+  echo "authtoken: ${authtoken}"
+fi
 
 areaid=`perl -ne 'print $1 if(/^([^,]+),/i)' auth2_fms`
 echo "areaid: $areaid"
