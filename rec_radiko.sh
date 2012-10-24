@@ -1,6 +1,6 @@
 #!/bin/sh
 
-playerurl=http://radiko.jp/player/swf/player_2.0.1.00.swf
+playerurl=http://radiko.jp/player/swf/player_3.0.0.01.swf
 playerfile=./player.swf
 keyfile=./authkey.png
 
@@ -31,7 +31,7 @@ fi
 # get keydata (need swftool)
 #
 if [ ! -f $keyfile ]; then
-  swfextract -b 5 $playerfile -o $keyfile
+  swfextract -b 14 $playerfile -o $keyfile
 
   if [ ! -f $keyfile ]; then
     echo "failed get keydata"
@@ -107,12 +107,27 @@ echo "areaid: $areaid"
 rm -f auth2_fms
 
 #
+# get stream-url
+#
+
+if [ -f ${channel}.xml ]; then
+  rm -f ${channel}.xml
+fi
+
+wget -q "http://radiko.jp/v2/station/stream/${channel}.xml"
+
+stream_url=`echo "cat /url/item[1]/text()" | xmllint --shell ${channel}.xml | tail -2 | head -1`
+url_parts=(`echo ${stream_url} | perl -pe 's!^(.*)://(.*?)/(.*)/(.*?)$/!$1://$2 $3 $4!'`)
+
+rm -f ${channel}.xml
+
+#
 # rtmpdump
 #
 rtmpdump -v \
-         -r "rtmpe://radiko.smartstream.ne.jp" \
-         --playpath "simul-stream" \
-         --app "${channel}/_defInst_" \
+         -r ${url_parts[0]} \
+         --app ${url_parts[1]} \
+         --playpath ${url_parts[2]} \
          -W $playerurl \
          -C S:"" -C S:"" -C S:"" -C S:$authtoken \
          --live \
