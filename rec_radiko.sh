@@ -6,7 +6,7 @@ if [ $# -ge 1 -a x-f = x"$1" ]; then
   shift
 fi
 
-playerurl=http://${baseurl}/player/swf/player_2.0.1.00.swf
+playerurl=http://${baseurl}/player/swf/player_3.0.0.01.swf
 playerfile=./player.swf
 keyfile=./authkey.png
 
@@ -37,7 +37,7 @@ fi
 # get keydata (need swftool)
 #
 if [ ! -f $keyfile ]; then
-  swfextract -b 5 $playerfile -o $keyfile
+  swfextract -b 14 $playerfile -o $keyfile
 
   if [ ! -f $keyfile ]; then
     echo "failed get keydata"
@@ -121,9 +121,9 @@ rm -f auth2_fms
 # rtmpdump
 #
 rtmpdump -v \
-         -r "rtmpe://radiko.smartstream.ne.jp" \
-         --playpath "simul-stream" \
-         --app "${channel}/_defInst_" \
+         -r "rtmpe://w-radiko.smartstream.ne.jp" \
+         --playpath "simul-stream.stream" \
+         --app "${channel}/_definst_" \
          -W $playerurl \
          -C S:"" -C S:"" -C S:"" -C S:$authtoken \
          --live \
