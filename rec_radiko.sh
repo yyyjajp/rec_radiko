@@ -1,6 +1,7 @@
 #!/bin/sh
 
-playerurl=http://radiko.jp/player/swf/player_3.0.0.01.swf
+playerurl=http://radiko.jp/player/swf/player_4.1.0.00.swf
+cookiefile=./cookie.txt
 playerfile=./player.swf
 keyfile=./authkey.png
 
@@ -10,9 +11,29 @@ if [ $# -eq 1 ]; then
 elif [ $# -eq 2 ]; then
   channel=$1
   output=$2
+elif [ $# -eq 4 ]; then
+  channel=$1
+  output=$2
+  mail=$3
+  pass=$4
 else
-  echo "usage : $0 channel_name [outputfile]"
+  echo "usage : $0 channel_name [outputfile] [mail] [pass]"
   exit 1
+fi
+
+###
+# radiko premium
+###
+if [ $mail ]; then
+  wget -q --save-cookie=$cookiefile \
+       --keep-session-cookies \
+       --post-data="mail=$mail&pass=$pass" \
+       https://radiko.jp/ap/member/login/login
+
+  if [ ! -f $cookiefile ]; then
+    echo "failed login"
+    exit 1
+  fi
 fi
 
 #
@@ -54,6 +75,7 @@ wget -q \
      --header="X-Radiko-Device: pc" \
      --post-data='\r\n' \
      --no-check-certificate \
+     --load-cookies $cookiefile \
      --save-headers \
      https://radiko.jp/v2/api/auth1_fms
 
@@ -91,6 +113,7 @@ wget -q \
      --header="X-Radiko-Authtoken: ${authtoken}" \
      --header="X-Radiko-Partialkey: ${partialkey}" \
      --post-data='\r\n' \
+     --load-cookies $cookiefile \
      --no-check-certificate \
      https://radiko.jp/v2/api/auth2_fms
 
