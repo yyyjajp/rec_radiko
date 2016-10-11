@@ -1,6 +1,6 @@
 #!/bin/sh
 
-playerurl=http://radiko.jp/player/swf/player_4.1.0.00.swf
+playerurl=http://radiko.jp/apps/js/flash/myplayer-release.swf
 cookiefile=./cookie.txt
 playerfile=./player.swf
 keyfile=./authkey.png
@@ -52,7 +52,7 @@ fi
 # get keydata (need swftool)
 #
 if [ ! -f $keyfile ]; then
-  swfextract -b 14 $playerfile -o $keyfile
+  swfextract -b 12 $playerfile -o $keyfile
 
   if [ ! -f $keyfile ]; then
     echo "failed get keydata"
@@ -69,8 +69,8 @@ fi
 #
 wget -q \
      --header="pragma: no-cache" \
-     --header="X-Radiko-App: pc_1" \
-     --header="X-Radiko-App-Version: 2.0.1" \
+     --header="X-Radiko-App: pc_ts" \
+     --header="X-Radiko-App-Version: 4.0.0" \
      --header="X-Radiko-User: test-stream" \
      --header="X-Radiko-Device: pc" \
      --post-data='\r\n' \
@@ -106,12 +106,12 @@ fi
 #
 wget -q \
      --header="pragma: no-cache" \
-     --header="X-Radiko-App: pc_1" \
-     --header="X-Radiko-App-Version: 2.0.1" \
+     --header="X-Radiko-App: pc_ts" \
+     --header="X-Radiko-App-Version: 4.0.0" \
      --header="X-Radiko-User: test-stream" \
      --header="X-Radiko-Device: pc" \
-     --header="X-Radiko-Authtoken: ${authtoken}" \
-     --header="X-Radiko-Partialkey: ${partialkey}" \
+     --header="X-Radiko-AuthToken: ${authtoken}" \
+     --header="X-Radiko-PartialKey: ${partialkey}" \
      --post-data='\r\n' \
      --load-cookies $cookiefile \
      --no-check-certificate \
